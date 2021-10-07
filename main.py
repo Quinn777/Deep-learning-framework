@@ -6,34 +6,13 @@ import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from vit_pytorch import ViT
-from DataProcessing.dataset import get_dataloader
+from vit import ViT
+from src.data.dataloader import get_dataloader
 from CNN import mobilenetv2
 from config import get_config
 
 os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
 print(f"Torch: {torch.__version__}")
-
-
-def get_model(config):
-    new_model = ""
-    if config["model_name"] == "mobilenetv2":
-        new_model = mobilenetv2.mobilenet_v2(pretrained=False,
-                                             num_classes=config["num_classes"],
-                                             input_size=config["input_size"])
-    elif config["model_name"] == "vit":
-        new_model = ViT(
-            image_size=config["input_size"],
-            patch_size=32,
-            num_classes=config["num_classes"],
-            dim=1024,
-            depth=6,
-            heads=16,
-            mlp_dim=2048,
-            dropout=0.1,
-            emb_dropout=0.1
-        )
-    return new_model
 
 
 def train(model, dataloader, config):
@@ -45,7 +24,6 @@ def train(model, dataloader, config):
     model.to(device)
 
     since = time.time()
-
     best_model_wts = model.state_dict()
     best_acc = 0.0
 
