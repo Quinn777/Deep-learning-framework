@@ -39,8 +39,8 @@ def get_transform(config):
         ]
     )
     transform_dict = {
-        "train": default_composed,
-        "valid": default_composed,
-        "test": default_composed
+        "train": train_transforms,
+        "valid": val_transforms,
+        "test": test_transforms
     }
     return transform_dict

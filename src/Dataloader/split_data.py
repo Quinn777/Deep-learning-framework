@@ -8,7 +8,6 @@ def split_ham10000(base_dir):
     # get name->path dict
     imageid_path_dict = {}
     for x in glob(os.path.join(base_dir, '*', '*.jpg')):
-        print(x[6:])
         imageid_path_dict[os.path.splitext(os.path.basename(x))[0]] = x[6:]
 
     # This dictionary is useful for displaying more human-friendly labels later on
@@ -27,7 +26,7 @@ def split_ham10000(base_dir):
     tile_df['cell_type_idx'] = pd.Categorical(tile_df['cell_type']).codes
     tile_df[['cell_type_idx', 'cell_type']].sort_values('cell_type_idx').drop_duplicates()
 
-    train_df, test_df = train_test_split(tile_df, test_size=0.3)
+    train_df, test_df = train_test_split(tile_df, test_size=0.2)
     valid_df, test_df = train_test_split(test_df, test_size=0.5)
 
     train_df.to_csv(os.path.join(base_dir, "train_mapping.csv"))
