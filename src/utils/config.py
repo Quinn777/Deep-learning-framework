@@ -15,7 +15,7 @@ default_config = {
     "input_size": 224,
     "batch_size": 64,
 
-    "lr": 0.001,
+    "lr": 0.01,
     "weight_decay": 5e-4,
     "gamma": 0.8,  # lr decay rate
     "decay_step": 10,
