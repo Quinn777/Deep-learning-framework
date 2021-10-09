@@ -4,15 +4,13 @@ import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from .models.vit import ViT
-from .Dataloader.dataloader import get_dataloader
-import torchvision.models as models
+# from .Dataloader.dataloader import get_dataloader
 from tqdm import tqdm
 import datetime
 
 
 class Trainer:
-    def __init__(self, config):
+    def __init__(self, config, model, dataloader, logger):
         self.config = config
 
         os.environ["CUDA_VISIBLE_DEVICES"] = config["gpus"]
@@ -21,7 +19,7 @@ class Trainer:
         seed_everything(self.config["seed"])
 
         # Initialize model and gpu
-        self.model = self.get_model(self.config)
+        self.model = model
         self.device = torch.device(f"cuda:{self.config['gpu_num']}" if torch.cuda.is_available() else "cpu")
         if config["gpu_parallel"] and torch.cuda.device_count() > 1:
             print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -34,7 +32,7 @@ class Trainer:
         self.best_model_path = ""
 
         # Initialize dataloader
-        self.dataloader = get_dataloader(self.config)
+        self.dataloader = dataloader
 
         # Loss function
         class_weights = torch.FloatTensor(self.config["class_weight"]).cuda()
@@ -183,25 +181,4 @@ class Trainer:
 
         return best_model_path, best_model_wts
 
-    @staticmethod
-    def get_model(config):
-        new_model = ""
-        if config["model_name"] == "mobilenetv2":
-            new_model = models.mobilenet_v2(pretrained=False,
-                                            num_classes=config["num_classes"],
-                                            input_size=config["input_size"])
-        elif config["model_name"] == "resnet50":
-            new_model = models.resnet50(pretrained=False, num_classes=config["num_classes"])
-        elif config["model_name"] == "vit":
-            new_model = ViT(
-                image_size=config["input_size"],
-                patch_size=32,  # image_size must be divisible by patch_size
-                num_classes=config["num_classes"],
-                dim=1024,  # Last dimension of output tensor after linear transformation nn.Linear(..., dim)
-                depth=6,  # Number of Transformer blocks
-                heads=16,  # Number of heads in Multi-head Attention layer
-                mlp_dim=2048,  # Dimension of the MLP (FeedForward) layer
-                dropout=0.1,
-                emb_dropout=0.1  # Embedding dropout rate (0-1)
-            )
-        return new_model
+

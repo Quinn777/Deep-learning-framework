@@ -35,7 +35,7 @@ def split_ham10000(base_dir):
 
 
 if __name__ == '__main__':
-    split_ham10000("../../input/HAM10000")
+    split_ham10000("../input/HAM10000")
     # df = pd.read_csv("../../input/HAM10000/train_mapping.csv")
     # test_img = Image.open(df["path"][1])
     # test_y = int(df['cell_type_idx'][1])

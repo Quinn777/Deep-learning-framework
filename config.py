@@ -13,7 +13,7 @@ default_config = {
     "data_name": "HAM10000",
     "num_classes": 7,
     "input_size": 224,
-    "batch_size": 64,
+    "batch_size": 32,
 
     "lr": 0.01,
     "weight_decay": 5e-4,
