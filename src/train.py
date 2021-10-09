@@ -4,7 +4,6 @@ import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
-# from .Dataloader.dataloader import get_dataloader
 from tqdm import tqdm
 import datetime
 
@@ -12,9 +11,9 @@ import datetime
 class Trainer:
     def __init__(self, config, model, dataloader, logger):
         self.config = config
-
+        self.logger = logger
         os.environ["CUDA_VISIBLE_DEVICES"] = config["gpus"]
-        print(f"Torch: {torch.__version__}")
+        self.logger.info(f"Torch: {torch.__version__}")
         torch.backends.cudnn.benchmark = True
         seed_everything(self.config["seed"])
 
@@ -22,7 +21,7 @@ class Trainer:
         self.model = model
         self.device = torch.device(f"cuda:{self.config['gpu_num']}" if torch.cuda.is_available() else "cpu")
         if config["gpu_parallel"] and torch.cuda.device_count() > 1:
-            print("Let's use", torch.cuda.device_count(), "GPUs!")
+            logger.info("Let's use", torch.cuda.device_count(), "GPUs!")
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(0, torch.cuda.device_count())))
         self.model.to(self.device)
 
@@ -73,7 +72,7 @@ class Trainer:
                                                                             epoch + 1,
                                                                             best_val_acc,
                                                                             best_val_loss)
-            print(
+            self.logger.info(
                 f"Epoch : {epoch + 1} - train_loss : {train_loss:.4f} - train_acc: {train_acc:.4f} - val_loss : "
                 f"{val_loss:.4f} - val_acc: {val_acc:.4f} - time:{time.time() - epoch_init_time}\n")
 
@@ -82,10 +81,10 @@ class Trainer:
 
         # 5. Print and finish
         time_elapsed = time.time() - init_time
-        print('Training complete in {:.0f}m {:.0f}s'.format(
+        self.logger.info('Training complete in {:.0f}m {:.0f}s'.format(
             time_elapsed // 60, time_elapsed % 60))
-        print(f'Final test: best val_acc:{best_val_acc} - best val_loss:{best_val_acc} - best test_acc:{test_acc} '
-              f'- best test_loss:{test_loss}')
+        self.logger.info(f'Final test: best val_acc:{best_val_acc} - best val_loss:{best_val_acc} - best test_acc:'
+                         f'{test_acc} - best test_loss:{test_loss}')
 
         return self.best_model
 

@@ -1,6 +1,6 @@
 from src.train import Trainer
 from config import get_config
-from logger.logger import Logger
+from src.utils.logger import Logger
 from models.get_model import get_model
 from dataloader.dataloader import get_dataloader
 
@@ -13,7 +13,7 @@ def main():
         num_classes=config["num_classes"]
     )
     dataloader = get_dataloader(config)
-    logger = Logger
+    logger = Logger().logger
     trainer = Trainer(config=config,
                       model=model,
                       logger=logger,
