@@ -1,3 +1,11 @@
+#!/usr/local/anaconda3/envs/xiangkun/bin/python
+# -*- coding: utf-8 -*-
+# @Time    : 2021/10/11 5:54 下午
+# @Author  : Kun Xiang
+# @File    : train.py
+# @Software: PyCharm
+# @Institution: SYSU Sc_lab
+
 from .utils.utils import *
 import os
 import time
@@ -6,13 +14,14 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 import datetime
-
+import torchvision
 
 class Trainer:
     def __init__(self, opt, model, dataloader, logger):
         self.opt = opt
         self.logger = logger
         self.logger.info(f"Torch: {torch.__version__}")
+        self.logger.info(f"Torchvision: {torchvision.__version__}")
         torch.backends.cudnn.benchmark = True
         seed_everything(self.opt.seed)
 

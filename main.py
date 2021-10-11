@@ -1,3 +1,11 @@
+#!/usr/local/anaconda3/envs/xiangkun/bin/python
+# -*- coding: utf-8 -*-
+# @Time    : 2021/10/11 5:54 下午
+# @Author  : Kun Xiang
+# @File    : main.py
+# @Software: PyCharm
+# @Institution: SYSU Sc_lab
+
 from src.train import Trainer
 from src.utils.logger import Logger
 from src.utils.utils import *
@@ -16,7 +24,7 @@ parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
 parser.add_argument('--test_batch_size', type=int, default=20, metavar='N',
                     help='input batch size for testing (default: 20)')
-parser.add_argument('--epoch', type=int, default=500, metavar='N', help='number of epochs to train (default: 500)')
+parser.add_argument('--epoch', type=int, default=200, metavar='N', help='number of epochs to train (default: 500)')
 parser.add_argument('--input_size', type=int, default=224, help='input image size')
 
 parser.add_argument('--weight_decay', type=float, default=0.0005, help='Adm weight decay')
@@ -35,7 +43,7 @@ parser.add_argument('--pin_memory', default=True, type=bool, help='use pin memor
 parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 
-parser.add_argument('--experiment', default='NetModel', type=str,
+parser.add_argument('--experiment', default='Benchmark', type=str,
                     help='name of experiment')
 parser.add_argument('--normalize_feature', default=False, type=bool,
                     help='normalize_feature')
