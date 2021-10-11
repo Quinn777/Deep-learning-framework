@@ -3,8 +3,8 @@ from __future__ import print_function
 import torchvision.transforms as transforms
 
 
-def get_transform(config):
-    size = config["input_size"]
+def get_transform(opt):
+    size = opt.input_size
 
     default_composed = transforms.Compose([transforms.RandomHorizontalFlip(),
                                            transforms.RandomVerticalFlip(),
@@ -19,7 +19,7 @@ def get_transform(config):
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize(config["normalize"][0], config["normalize"][1])
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]
     )
 
@@ -27,7 +27,7 @@ def get_transform(config):
         [
             transforms.Resize((size, size)),
             transforms.ToTensor(),
-            transforms.Normalize(config["normalize"][0], config["normalize"][1])
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]
     )
 
@@ -35,7 +35,7 @@ def get_transform(config):
         [
             transforms.Resize((size, size)),
             transforms.ToTensor(),
-            transforms.Normalize(config["normalize"][0], config["normalize"][1])
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]
     )
     transform_dict = {
