@@ -27,33 +27,33 @@ class HAM10000Dataset(Dataset):
         return x, y
 
 
-def get_dataloader(config):
-    transform_dict = get_transform(config)
-    train_data = HAM10000Dataset(base_dir=config["input_dir"],
+def get_dataloader(opt):
+    transform_dict = get_transform(opt)
+    train_data = HAM10000Dataset(base_dir=opt.input_dir,
                                  partition="train",
                                  transform=transform_dict["train"])
-    valid_data = HAM10000Dataset(base_dir=config["input_dir"],
+    valid_data = HAM10000Dataset(base_dir=opt.input_dir,
                                  partition="valid",
                                  transform=transform_dict["valid"])
-    test_data = HAM10000Dataset(base_dir=config["input_dir"],
+    test_data = HAM10000Dataset(base_dir=opt.input_dir,
                                 partition="test",
                                 transform=transform_dict["test"])
 
     train_loader = DataLoader(dataset=train_data,
-                              batch_size=config["batch_size"],
+                              batch_size=opt.batch_size,
                               shuffle=True,
-                              num_workers=config["workers"],
-                              pin_memory=config["pin_memory"])
+                              num_workers=opt.workers,
+                              pin_memory=opt.pin_memory)
     valid_loader = DataLoader(dataset=valid_data,
-                              batch_size=config["batch_size"],
+                              batch_size=opt.test_batch_size,
                               shuffle=True,
-                              num_workers=config["workers"],
-                              pin_memory=config["pin_memory"])
+                              num_workers=opt.workers,
+                              pin_memory=opt.pin_memory)
     test_loader = DataLoader(dataset=test_data,
-                             batch_size=config["batch_size"],
+                             batch_size=opt.test_batch_size,
                              shuffle=True,
-                             num_workers=config["workers"],
-                             pin_memory=config["pin_memory"])
+                             num_workers=opt.workers,
+                             pin_memory=opt.pin_memory)
 
     dataloader = {
         "train": train_loader,
