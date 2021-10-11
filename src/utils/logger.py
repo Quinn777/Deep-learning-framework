@@ -12,7 +12,7 @@ class Logger(object):
         self.logger.setLevel(logging.INFO)  # Log等级总开关
 
         rq = time.strftime('%Y%m%d%H%M', time.localtime(time.time()))
-        self.log_path = os.path.join(os.getcwd(), 'logs/')
+        self.log_path = os.path.join(os.getcwd(), 'log/logs/')
         if not os.path.exists(self.log_path):
             os.makedirs(self.log_path)
         self.log_name = self.log_path + rq + '.log'

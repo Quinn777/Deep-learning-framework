@@ -9,18 +9,18 @@ import datetime
 
 
 class Trainer:
-    def __init__(self, config, model, dataloader, logger):
-        self.config = config
+    def __init__(self, opt, model, dataloader, logger):
+        self.opt = opt
         self.logger = logger
-        os.environ["CUDA_VISIBLE_DEVICES"] = config["gpus"]
         self.logger.info(f"Torch: {torch.__version__}")
         torch.backends.cudnn.benchmark = True
-        seed_everything(self.config["seed"])
+        seed_everything(self.opt.seed)
 
         # Initialize model and gpu
         self.model = model
-        self.device = torch.device(f"cuda:{self.config['gpu_num']}" if torch.cuda.is_available() else "cpu")
-        if config["gpu_parallel"] and torch.cuda.device_count() > 1:
+        self.device = torch.device(f"cuda:{str(self.opt.gpu_num)}"
+                                   if torch.cuda.is_available() and self.opt.cuda else "cpu")
+        if self.opt.gpu_parallel and torch.cuda.device_count() > 1 and self.opt.cuda:
             logger.info("Let's use", torch.cuda.device_count(), "GPUs!")
             self.model = torch.nn.DataParallel(self.model, device_ids=list(range(0, torch.cuda.device_count())))
         self.model.to(self.device)
@@ -34,20 +34,21 @@ class Trainer:
         self.dataloader = dataloader
 
         # Loss function
-        class_weights = torch.FloatTensor(self.config["class_weight"]).cuda()
+        # todo: class weight的自动生成
+        class_weights = torch.FloatTensor([0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2]).cuda()
         self.criterion = nn.CrossEntropyLoss(weight=class_weights)
         # Optimizer
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.config["lr"],
-                                    weight_decay=self.config["weight_decay"], betas=(0.9, 0.99))
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.opt.lr,
+                                    weight_decay=self.opt.weight_decay, betas=(0.9, 0.99))
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer,
-                                                         step_size=self.config["decay_step"],
-                                                         gamma=self.config["gamma"])
+                                                         step_size=self.opt.decay_step,
+                                                         gamma=self.opt.gamma)
 
     def run(self):
         best_val_acc, best_val_loss = 0, 0
         init_time = time.time()
 
-        for epoch in range(self.config["epoch"]):
+        for epoch in range(self.opt.epoch):
             epoch_init_time = time.time()
             # 1. Train a model
             self.model, train_acc, train_loss = self.train(input_model=self.model,
@@ -66,7 +67,7 @@ class Trainer:
                 best_val_acc = val_acc
                 best_val_loss = val_loss
                 self.best_model = self.model
-                self.best_model_path, self.best_model_wts = self.save_model(self.config,
+                self.best_model_path, self.best_model_wts = self.save_model(self.opt,
                                                                             self.model,
                                                                             self.best_model_path,
                                                                             epoch + 1,
@@ -159,11 +160,11 @@ class Trainer:
         return input_model, epoch_acc, epoch_loss
 
     @staticmethod
-    def save_model(config, input_model, best_model_path, epoch, val_acc, val_loss):
+    def save_model(opt, input_model, best_model_path, epoch, val_acc, val_loss):
         # Make dir
         # output/HAM10000/mobilenetv2
-        if not os.path.exists(f'output/{config["data_name"]}/{config["model_name"]}'):
-            os.makedirs(f'output/{config["data_name"]}/{config["model_name"]}')
+        if not os.path.exists(f'output/{opt.data_name}/{opt.model_name}'):
+            os.makedirs(f'output/{opt.data_name}/{opt.model_name}')
 
         # Delete the best model previously saved
         if os.path.exists(best_model_path):
@@ -171,13 +172,11 @@ class Trainer:
 
         # Save the new best model
         today = datetime.date.today()
-        best_model_path = f'output/{config["data_name"]}/{config["model_name"]}/' \
-                          f'{today}_ValAcc{val_acc:.4f}_ValLoss_{val_loss:.4f}_lr{config["lr"]}_gamma' \
-                          f'{config["gamma"]}_batchsize{config["batch_size"]}_epoch{epoch}.pkl '
+        best_model_path = f'output/{opt.data_name}/{opt.model_name}/' \
+                          f'{today}_ValAcc{val_acc:.4f}_ValLoss_{val_loss:.4f}_lr{opt.lr}_gamma' \
+                          f'{opt.gamma}_batchsize{opt.batch_size}_epoch{epoch}.pkl '
 
         torch.save(input_model, best_model_path)
         best_model_wts = input_model.state_dict()
 
         return best_model_path, best_model_wts
-
-

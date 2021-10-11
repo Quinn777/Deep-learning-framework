@@ -1,6 +1,7 @@
 import torchvision.models as models
 from .cnn import *
 from .vit import *
+import torch.nn as nn
 
 
 def get_model(model_name, input_size, num_classes):
@@ -10,9 +11,8 @@ def get_model(model_name, input_size, num_classes):
                                     num_classes=num_classes,
                                     input_size=input_size)
     elif model_name == "resnet50":
-        model = models.resnet50(pretrained=False,
-                                input_size=input_size,
-                                num_classes=num_classes)
+        model = models.resnet50(pretrained=False)
+        model.fc = nn.Linear(in_features=2048, out_features=num_classes)
     elif model_name == "vit":
         model = ViT(
             image_size=input_size,
