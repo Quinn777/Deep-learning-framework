@@ -1,12 +1,15 @@
-## Deep-learning-framework v0.6
+## Deep-learning-framework v1.0
+2021.11.14  Update to V1.0
+1. Some unnecessary functions have been removed
+2. Support the Adversarial Training (use TRADES loss function)
 
-本仓库搭建了一个深度学习图像分类通用框架，旨在方便日后实验室对于各种分类算法的测试。
+本仓库搭建了一个深度学习图像分类通用框架，旨在方便日后sc_lab成员对于各种分类算法的测试。
 
 ### 使用
 
 ```bash
 pip install -r requirements.txt
-python main.py
+sh run.sh
 ```
 
 如果一些包安装失败可手动使用conda install
