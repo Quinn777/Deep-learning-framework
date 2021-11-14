@@ -7,20 +7,17 @@ from torch.autograd import Variable
 import sys
 import numpy as np
 
-
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=True)
-
 
 def conv_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
-        init.xavier_uniform(m.weight, gain=np.sqrt(2))
-        init.constant(m.bias, 0)
+        init.xavier_uniform_(m.weight, gain=np.sqrt(2))
+        init.constant_(m.bias, 0)
     elif classname.find('BatchNorm') != -1:
-        init.constant(m.weight, 1)
-        init.constant(m.bias, 0)
-
+        init.constant_(m.weight, 1)
+        init.constant_(m.bias, 0)
 
 class wide_basic(nn.Module):
     def __init__(self, in_planes, planes, dropout_rate, stride=1):
@@ -44,14 +41,13 @@ class wide_basic(nn.Module):
 
         return out
 
-
 class Wide_ResNet(nn.Module):
-    def __init__(self, depth, widen_factor, dropout_rate, num_classes=-1):
+    def __init__(self, depth, widen_factor, dropout_rate, num_classes):
         super(Wide_ResNet, self).__init__()
         self.in_planes = 16
 
         assert ((depth-4)%6 ==0), 'Wide-resnet depth should be 6n+4'
-        n = (depth-4) // 6
+        n = (depth-4)/6
         k = widen_factor
 
         print('| Wide-Resnet %dx%d' %(depth, k))
@@ -62,13 +58,10 @@ class Wide_ResNet(nn.Module):
         self.layer2 = self._wide_layer(wide_basic, nStages[2], n, dropout_rate, stride=2)
         self.layer3 = self._wide_layer(wide_basic, nStages[3], n, dropout_rate, stride=2)
         self.bn1 = nn.BatchNorm2d(nStages[3], momentum=0.9)
-
-        self.num_classes = num_classes
-        if self.num_classes > 0:
-            self.classifier = nn.Linear(64*k, self.num_classes)
+        self.linear = nn.Linear(nStages[3], num_classes)
 
     def _wide_layer(self, block, planes, num_blocks, dropout_rate, stride):
-        strides = [stride] + [1]*(num_blocks-1)
+        strides = [stride] + [1]*(int(num_blocks)-1)
         layers = []
 
         for stride in strides:
@@ -77,30 +70,29 @@ class Wide_ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x, is_feat=False):
+    def forward(self, x):
         out = self.conv1(x)
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
         out = F.relu(self.bn1(out))
-        out = F.adaptive_avg_pool2d(out, 1)
+        out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1)
-        feat = out
-        if self.num_classes > 0:
-            out = self.classifier(out)
+        out = self.linear(out)
 
-        if is_feat:
-            return [feat], out
-        else:
-            return out
+        return out
 
+def wrn_28_10(num_classes):
+    return Wide_ResNet(28, 10, 0.0, num_classes)
 
-def wrn_28_10(dropout_rate=0.3, num_classes=-1):
-    return Wide_ResNet(28, 10, dropout_rate, num_classes)
+def wrn_28_4(num_classes):
+    return Wide_ResNet(28, 4, 0.0, num_classes)
 
+def wrn_28_1(num_classes):
+    return Wide_ResNet(28, 1, 0.0, num_classes)
 
-if __name__ == '__main__':
-    net=Wide_ResNet(28, 10, 0.3)
-    y = net(Variable(torch.randn(1,3,32,32)))
+def wrn_34_10(num_classes):
+    return Wide_ResNet(34, 10, 0.0, num_classes)
 
-    print(y.size())
+def wrn_40_2(num_classes):
+    return Wide_ResNet(40, 2, 0.0, num_classes)

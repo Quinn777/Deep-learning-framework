@@ -6,22 +6,23 @@
 # @Software: PyCharm
 # @Institution: SYSU Sc_lab
 
-import torchvision.models as models
-from .cnn import *
 from .vit import *
-import torch.nn as nn
-
-
+from .cnn.wresnet import *
+import torchvision.models as models
 def get_model(model_name, input_size, num_classes):
     model = ""
-    distiller = ""
-    if model_name == "mobilenetv2":
-        model = models.mobilenet.mobilenet_v2(pretrained=False,
-                                              num_classes=num_classes)
-    elif model_name == "resnet50":
+    if model_name == "resnet50":
         model = models.resnet50(pretrained=False)
-        model.fc = nn.Linear(in_features=2048, out_features=num_classes)
-
+        fc_features = model.fc.in_features
+        model.fc = nn.Linear(fc_features, num_classes)
+    elif model_name == "vgg16":
+        model = models.vgg16(pretrained=False)
+        fc_features = model.fc.in_features
+        model.fc = nn.Linear(fc_features, num_classes)
+    elif model_name == "wrn_28_10":
+        model = wrn_28_10(num_classes)
+    elif model_name == "wrn_28_4":
+        model = wrn_28_4(num_classes)
     elif model_name == "vit":
         model = ViT(
             image_size=input_size,

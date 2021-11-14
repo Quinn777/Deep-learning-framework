@@ -12,7 +12,7 @@ import os.path
 
 
 class Logger(object):
-    def __init__(self):
+    def __init__(self, path,):
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s: %(message)s')
         # 第一步，创建一个logger
@@ -20,11 +20,8 @@ class Logger(object):
         self.logger.setLevel(logging.INFO)  # Log等级总开关
 
         rq = time.strftime('%Y%m%d%H%M', time.localtime(time.time()))
-        self.log_path = os.path.join(os.getcwd(), 'log/logs/')
-        if not os.path.exists(self.log_path):
-            os.makedirs(self.log_path)
-        self.log_name = self.log_path + rq + '.log'
-        fh = logging.FileHandler(self.log_name, mode='w')
+        self.log_path = os.path.join(path, f"log--{rq}.log")
+        fh = logging.FileHandler(self.log_path, mode='w')
         fh.setLevel(logging.INFO)  # 输出到file的log等级的开关
 
         ch = logging.StreamHandler()
